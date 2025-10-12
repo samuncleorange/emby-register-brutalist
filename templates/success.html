@@ -3,28 +3,28 @@
 {% block content %}
 <div class="card">
     <div class="card-body text-center">
-        <h3 class="card-title text-success">🎉 注册成功！</h3>
-        <p>您的Emby账号已创建。请妥善保管以下信息。</p>
-        
-        {# The user info box now includes the server URL #}
+        <h3 class="card-title" style="color: #00FF00;">注册成功!</h3>
+        <p style="font-size: 1.2rem; font-weight: 800;">您的Emby账号已创建。请妥善保管以下信息。</p>
+
         <div class="alert alert-info text-start">
-            {# NEW: Display the Emby Server URL #}
-            <p class="mb-1"><strong>服务器地址:</strong> <br><code class="fs-6">{{ emby_url }}</code></p>
+            <p class="mb-1"><strong>服务器地址:</strong></p>
+            <code class="fs-6">{{ emby_url }}</code>
             <hr>
             <p class="mb-1"><strong>用户名:</strong> {{ username }}</p>
             <p class="mb-0"><strong>密码:</strong> {{ password }}</p>
         </div>
-        
+
         <div class="alert alert-warning">
             <strong>请妥善保管您的登录信息！</strong> 请记住您设置的密码！
             <br><br>
-            📱 <a href="https://github.com/guowanghushifu/EmbyToolbox" target="_blank" class="text-decoration-none">各平台Emby客户端列表(github)</a>
-            <br><br>
-            📱 <a href="https://gitee.com/guowanghushifu/EmbyToolbox" target="_blank" class="text-decoration-none">各平台Emby客户端列表(国内gitee)</a>
-            <br><br>
+            各平台Emby客户端列表：
+            <br>
+            <a href="https://github.com/guowanghushifu/EmbyToolbox" target="_blank" class="text-decoration-none">GitHub版本</a>
+            /
+            <a href="https://gitee.com/guowanghushifu/EmbyToolbox" target="_blank" class="text-decoration-none">Gitee版本</a>
         </div>
-        
-        <a href="{{ emby_url }}" class="btn btn-primary" target="_blank">前往 Emby 登录</a>
+
+        <a href="{{ emby_url }}" class="btn btn-primary" target="_blank" style="display: inline-block; width: auto;">前往 Emby 登录</a>
     </div>
 </div>
 {% endblock %}

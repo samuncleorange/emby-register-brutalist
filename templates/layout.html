@@ -4,18 +4,340 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{% block title %}Emby 注册服务{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f8f9fa; }
-        .container { max-width: 1000px; }
-        .card { margin-top: 2rem; }
-        .alert { margin-top: 1rem; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #FFFFFF;
+            font-family: -apple-system, BlinkMacSystemFont, "Arial Black", "Arial", sans-serif;
+            color: #000000;
+            line-height: 1.3;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* Brutalist Card Style */
+        .card {
+            background: #FFFFFF;
+            border: 5px solid #000000;
+            border-radius: 20px;
+            margin-top: 40px;
+            box-shadow: 8px 8px 0 #000000;
+            overflow: hidden;
+        }
+
+        .card-body {
+            padding: 40px;
+        }
+
+        .card-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #000000;
+            margin-bottom: 30px;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+        }
+
+        /* Form Elements */
+        .form-label {
+            display: block;
+            font-size: 1rem;
+            font-weight: 900;
+            color: #000000;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 18px 20px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border: 4px solid #000000;
+            border-radius: 16px;
+            background: #FFFFFF;
+            color: #000000;
+            margin-bottom: 25px;
+            outline: none;
+            transition: all 0.1s;
+        }
+
+        .form-control:focus {
+            border-color: #FF1493;
+            box-shadow: 5px 5px 0 #FFD700;
+        }
+
+        .form-control.is-invalid {
+            border-color: #FF1493;
+            background: #FFF5F7;
+        }
+
+        .form-control.is-valid {
+            border-color: #00FF00;
+            background: #F0FFF0;
+        }
+
+        .form-text {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #666;
+            margin-top: -20px;
+            margin-bottom: 20px;
+        }
+
+        .invalid-feedback {
+            display: none;
+            font-size: 0.95rem;
+            font-weight: 900;
+            color: #FF1493;
+            background: #FFF5F7;
+            padding: 12px 16px;
+            border: 3px solid #FF1493;
+            border-radius: 12px;
+            margin-top: -20px;
+            margin-bottom: 20px;
+        }
+
+        /* Buttons - High Contrast */
+        .btn {
+            display: inline-block;
+            padding: 18px 35px;
+            font-size: 1.2rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            text-decoration: none;
+            text-align: center;
+            border: 4px solid #000000;
+            border-radius: 18px;
+            cursor: pointer;
+            transition: all 0.1s;
+            box-shadow: 6px 6px 0 #000000;
+            letter-spacing: 0.5px;
+        }
+
+        .btn:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 4px 4px 0 #000000;
+        }
+
+        .btn:active {
+            transform: translate(4px, 4px);
+            box-shadow: 2px 2px 0 #000000;
+        }
+
+        .btn-primary {
+            background: #FFD700;
+            color: #000000;
+        }
+
+        .btn-success {
+            background: #00FF00;
+            color: #000000;
+        }
+
+        .btn-danger {
+            background: #FF1493;
+            color: #FFFFFF;
+        }
+
+        .btn-secondary {
+            background: #CCCCCC;
+            color: #000000;
+        }
+
+        .btn-info, .btn-outline-info {
+            background: #00BFFF;
+            color: #000000;
+        }
+
+        .btn-sm {
+            padding: 12px 20px;
+            font-size: 0.95rem;
+        }
+
+        /* Alert Boxes - Bold Color Blocks */
+        .alert {
+            padding: 20px 25px;
+            margin: 20px 0;
+            font-size: 1.05rem;
+            font-weight: 800;
+            border: 4px solid #000000;
+            border-radius: 16px;
+            line-height: 1.5;
+        }
+
+        .alert-success {
+            background: #00FF00;
+            color: #000000;
+        }
+
+        .alert-danger {
+            background: #FF1493;
+            color: #FFFFFF;
+        }
+
+        .alert-warning {
+            background: #FFD700;
+            color: #000000;
+        }
+
+        .alert-info {
+            background: #00BFFF;
+            color: #000000;
+        }
+
+        /* Badge - Pure Color Blocks */
+        .badge {
+            display: inline-block;
+            padding: 8px 16px;
+            font-size: 0.9rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            border: 3px solid #000000;
+            border-radius: 12px;
+        }
+
+        .bg-success {
+            background: #00FF00;
+            color: #000000;
+        }
+
+        .bg-primary {
+            background: #00BFFF;
+            color: #000000;
+        }
+
+        /* Table */
+        .table-responsive {
+            overflow-x: auto;
+            border: 4px solid #000000;
+            border-radius: 16px;
+            margin: 20px 0;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-weight: 700;
+        }
+
+        .table thead {
+            background: #000000;
+            color: #FFD700;
+        }
+
+        .table th {
+            padding: 18px 15px;
+            text-align: left;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 0.95rem;
+            border-bottom: 4px solid #000000;
+        }
+
+        .table td {
+            padding: 18px 15px;
+            border-bottom: 3px solid #000000;
+            font-size: 0.95rem;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background: #F5F5F5;
+        }
+
+        .table tbody tr:hover {
+            background: #FFD700;
+        }
+
+        /* Utility Classes */
+        .text-center { text-align: center; }
+        .text-start { text-align: left; }
+        .text-muted { color: #666666; }
+        .text-danger { color: #FF1493; }
+        .text-success { color: #00FF00; }
+
+        .d-flex { display: flex; }
+        .justify-content-between { justify-content: space-between; }
+        .justify-content-center { justify-content: center; }
+        .align-items-center { align-items: center; }
+        .flex-column { flex-direction: column; }
+        .gap-2 { gap: 10px; }
+
+        .d-grid { display: grid; }
+        .mb-0 { margin-bottom: 0; }
+        .mb-1 { margin-bottom: 8px; }
+        .mb-3 { margin-bottom: 25px; }
+        .mb-4 { margin-bottom: 35px; }
+        .mt-3 { margin-top: 25px; }
+        .mt-4 { margin-top: 35px; }
+
+        /* Code Block */
+        code {
+            background: #FFD700;
+            color: #000000;
+            padding: 4px 10px;
+            border: 3px solid #000000;
+            border-radius: 8px;
+            font-weight: 900;
+            font-size: 1.1rem;
+        }
+
+        /* Links */
+        a {
+            color: #FF1493;
+            font-weight: 900;
+            text-decoration: none;
+            border-bottom: 3px solid #FF1493;
+        }
+
+        a:hover {
+            background: #FF1493;
+            color: #FFFFFF;
+        }
+
+        .text-decoration-none {
+            border-bottom: none;
+        }
+
+        /* Additional spacing */
+        p {
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        strong {
+            font-weight: 900;
+        }
+
+        hr {
+            border: 0;
+            border-top: 4px solid #000000;
+            margin: 20px 0;
+        }
+
+        .fs-5 { font-size: 1.4rem; }
+        .fs-6 { font-size: 1.1rem; }
+
+        input[type="hidden"] {
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         {% block content %}{% endblock %}
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

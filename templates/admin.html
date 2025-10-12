@@ -4,7 +4,7 @@
 <div class="card">
     <div class="card-body">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="card-title mb-0">Token 管理</h3>
+            <h3 class="card-title mb-0">TOKEN 管理</h3>
             <a href="{{ url_for('logout') }}" class="btn btn-sm btn-secondary">退出登录</a>
         </div>
 
@@ -17,22 +17,22 @@
         {% endwith %}
 
         <form method="post" action="{{ url_for('generate_token') }}" class="d-grid mb-4">
-            <button type="submit" class="btn btn-success">生成新 Token</button>
+            <button type="submit" class="btn btn-success">生成新 TOKEN</button>
         </form>
-        
-        <h5 class="mt-4">有效 Token 列表
+
+        <h5 style="font-size: 1.3rem; font-weight: 900; margin-top: 30px; margin-bottom: 20px;">有效 TOKEN 列表
             {% if public_access_url == 'YOUR_DOMAIN.com' %}
-                <small class="text-danger">(请设置 PUBLIC_ACCESS_URL 环境变量以修正域名)</small>
+                <span style="color: #FF1493; font-size: 0.9rem;">(请设置 PUBLIC_ACCESS_URL 环境变量)</span>
             {% endif %}
         </h5>
         <div class="table-responsive">
-            <table class="table table-striped table-hover align-middle">
+            <table class="table">
                 <thead>
                     <tr>
-                        <th scope="col" style="width: 80%;">注册链接</th>
+                        <th scope="col" style="width: 70%;">注册链接</th>
                         <th scope="col">状态</th>
-                        <th scope="col" style="width: 6ch; white-space: nowrap;">注册用户</th>
-                        <th scope="col" style="width: 1%; white-space: nowrap;">*操作*</th>
+                        <th scope="col" style="white-space: nowrap;">用户</th>
+                        <th scope="col" style="white-space: nowrap;">操作</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -48,7 +48,7 @@
                                 <span class="badge bg-primary">未用</span>
                             {% endif %}
                         </td>
-                        <td style="width: 6ch; word-break: break-all;">
+                        <td style="word-break: break-all;">
                             {% if token.username %}
                                 {{ token.username }}
                             {% else %}
@@ -57,33 +57,76 @@
                         </td>
                         <td>
                             <div class="d-flex flex-column gap-2">
-                                <button class="btn btn-sm btn-outline-info" 
+                                <button class="btn btn-sm btn-info"
                                         onclick="copyTextToClipboard('{{ public_access_url }}/emby?token={{ token.full_signed_token }}', this)">
                                     复制
                                 </button>
-                                
+
                                 <form class="mb-0" method="post" action="{{ url_for('delete_token', token_id=token.id) }}" onsubmit="return confirm('确定要删除这个Token吗？');">
-                                    <button type="submit" class="btn btn-sm btn-danger">删除</button>
+                                    <button type="submit" class="btn btn-sm btn-danger" style="width: 100%;">删除</button>
                                 </form>
                             </div>
                         </td>
                     </tr>
                     {% else %}
                     <tr>
-                        <td colspan="4" class="text-center">没有可用的 Token。</td>
+                        <td colspan="4" class="text-center" style="padding: 30px;">没有可用的 Token。</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
 
-        {# --- NEW: Render the pagination controls --- #}
         <div class="d-flex justify-content-center mt-4">
             {{ pagination.links }}
         </div>
 
     </div>
 </div>
+
+<style>
+/* Pagination styling for brutalist design */
+.pagination {
+    display: flex;
+    list-style: none;
+    gap: 10px;
+    padding: 0;
+    margin: 0;
+}
+
+.pagination li {
+    display: inline-block;
+}
+
+.pagination a, .pagination span {
+    display: inline-block;
+    padding: 12px 18px;
+    font-size: 1rem;
+    font-weight: 900;
+    text-decoration: none;
+    border: 4px solid #000000;
+    border-radius: 12px;
+    background: #FFFFFF;
+    color: #000000;
+    transition: all 0.1s;
+}
+
+.pagination a:hover {
+    background: #FFD700;
+    transform: translate(1px, 1px);
+}
+
+.pagination .active span {
+    background: #FF1493;
+    color: #FFFFFF;
+}
+
+.pagination .disabled span {
+    background: #CCCCCC;
+    color: #666666;
+    border-color: #999999;
+}
+</style>
 
 <script>
 function copyTextToClipboard(textToCopy, buttonElement) {
@@ -116,23 +159,19 @@ function copyTextToClipboard(textToCopy, buttonElement) {
 
 function showCopyFeedback(buttonElement, isSuccess) {
     const originalText = buttonElement.innerHTML;
+    const originalClass = buttonElement.className;
+
     if (isSuccess) {
-        buttonElement.innerHTML = '复制';
-        buttonElement.classList.remove('btn-outline-info');
-        buttonElement.classList.add('btn-success');
+        buttonElement.innerHTML = '已复制!';
+        buttonElement.className = 'btn btn-sm btn-success';
     } else {
         buttonElement.innerHTML = '失败';
-        buttonElement.classList.remove('btn-outline-info');
-        buttonElement.classList.add('btn-danger');
+        buttonElement.className = 'btn btn-sm btn-danger';
     }
+
     setTimeout(() => {
         buttonElement.innerHTML = originalText;
-        if (isSuccess) {
-            buttonElement.classList.remove('btn-success');
-        } else {
-            buttonElement.classList.remove('btn-danger');
-        }
-        buttonElement.classList.add('btn-outline-info');
+        buttonElement.className = originalClass;
     }, 2000);
 }
 </script>
