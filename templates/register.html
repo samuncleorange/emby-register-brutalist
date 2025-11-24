@@ -49,6 +49,12 @@
                     两次密码输入不一致
                 </div>
             </div>
+            {% if moviepilot_enabled %}
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="create_moviepilot" name="create_moviepilot" checked>
+                <label class="form-check-label" for="create_moviepilot">同时创建 Moviepilot 用户</label>
+            </div>
+            {% endif %}
             <div class="d-grid">
                 <button type="submit" class="btn btn-primary" id="submitBtn">注册</button>
             </div>

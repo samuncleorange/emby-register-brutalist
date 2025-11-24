@@ -29,6 +29,10 @@ EMBY_SERVER_URL = os.getenv('EMBY_SERVER_URL', '').rstrip('/')
 EMBY_API_KEY = os.getenv('EMBY_API_KEY')
 COPY_FROM_USER_ID = os.getenv('COPY_FROM_USER_ID')
 PUBLIC_ACCESS_URL = os.getenv('PUBLIC_ACCESS_URL', 'YOUR_DOMAIN.com')
+# Moviepilot Integration (Optional)
+MOVIEPILOT_URL = os.getenv('MOVIEPILOT_URL', '').rstrip('/')
+MOVIEPILOT_USER = os.getenv('MOVIEPILOT_USER')
+MOVIEPILOT_PASSWORD = os.getenv('MOVIEPILOT_PASSWORD')
 
 
 if not all([ADMIN_PASSWORD, EMBY_SERVER_URL, EMBY_API_KEY, COPY_FROM_USER_ID]):
@@ -109,6 +113,64 @@ def create_emby_user(username, password):
         app.logger.error(f"步骤 2/2 - 为用户 '{username}' (ID: {user_id}) 设置密码失败: {e}")
         return None, "用户已创建但设置密码失败，请联系管理员。"
     return user_id, None
+
+# --- Moviepilot API Helpers ---
+def get_moviepilot_access_token():
+    """Logs in to the Moviepilot API to get a temporary access token."""
+    login_url = f"{MOVIEPILOT_URL}/api/v1/login/access-token"
+    login_data = {'username': MOVIEPILOT_USER, 'password': MOVIEPILOT_PASSWORD}
+    try:
+        response = requests.post(login_url, data=login_data, timeout=15)
+        response.raise_for_status()
+        token_data = response.json()
+        access_token = token_data.get('access_token')
+        if not access_token:
+            app.logger.error("Moviepilot登录失败: 响应中未找到 'access_token'。")
+            return None
+        return access_token
+    except requests.RequestException as e:
+        app.logger.error(f"Moviepilot登录失败: {e}")
+        return None
+
+def create_moviepilot_user(username, password):
+    """Attempts to create a new user in Moviepilot using an access token."""
+    access_token = get_moviepilot_access_token()
+    if not access_token:
+        return False, "获取Moviepilot Access Token失败，请检查管理���凭据。"
+
+    headers = {'Authorization': f"Bearer {access_token}", 'Content-Type': 'application/json'}
+    create_user_url = f"{MOVIEPILOT_URL}/api/v1/user/"
+    payload = {
+        "name": username,
+        "username": username,
+        "password": password,
+        "email": f"{username}@moviepilot.org",
+        "is_active": True,
+        "is_superuser": False,
+        "permission": 1,
+        "plugins": ["sub_share", "emby", "slack", "push", "telegram", "wechat", "movie_robot"]
+    }
+    try:
+        response = requests.post(create_user_url, json=payload, headers=headers, timeout=20)
+        if response.status_code == 201:
+            app.logger.info(f"成功为 '{username}' 创建Moviepilot用户。")
+            return True, None
+        else:
+            response.raise_for_status()
+    except requests.RequestException as e:
+        error_message = f"调用Moviepilot API时发生网络错误: {e}"
+        if e.response is not None:
+            try:
+                error_detail = e.response.json().get('detail', e.response.text)
+                if "already exists" in str(error_detail):
+                    app.logger.warning(f"Moviepilot用户 '{username}' 已存在，跳过创建。")
+                    return True, "用户已存在"
+                error_message = f"Moviepilot API错误: {error_detail}"
+            except ValueError:
+                error_message = f"Moviepilot API错误: {e.response.text}"
+        app.logger.error(f"创建Moviepilot用户 '{username}' 失败: {error_message}")
+        return False, error_message
+    return False, "未知错误"
 
 # --- Routes ---
 @app.route('/')
@@ -197,52 +259,58 @@ def emby_register():
     token_payload = _verify_signed_token(full_token_str)
     if not token_payload:
         return render_template('error.html', error_message=error_msg_template)
+    
     db = get_db()
     token_data = db.execute('SELECT * FROM tokens WHERE token = ? AND is_used = 0', (token_payload,)).fetchone()
     if not token_data:
         db.close()
         return render_template('error.html', error_message=error_msg_template)
+
+    # Check if Moviepilot integration is enabled
+    moviepilot_enabled = all([MOVIEPILOT_URL, MOVIEPILOT_USER, MOVIEPILOT_PASSWORD])
+
     if request.method == 'POST':
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '').strip()
-        
-        # Validate username
-        if not re.match(r'^[a-zA-Z0-9]{4,32}$', username):
-            db.close()
-            return render_template('register.html', token=full_token_str, error="用户名不合法：长度需为4-32位，且只能包含英文字母和数字。")
-        
-        # Validate password
+        create_moviepilot = request.form.get('create_moviepilot') == 'on'
+
+        if not re.match(r'^[a-zA-Z0-9]{4,32}
+
+# --- Main Execution ---
+if __name__ == '__main__': 
+    init_db()
+    app.run(host='0.0.0.0', port=5000), username):
+            return render_template('register.html', token=full_token_str, error="用户名不合法：长度需为4-32位，且只能包含英文字母和数字。", moviepilot_enabled=moviepilot_enabled)
         if len(password) < 6:
-            db.close()
-            return render_template('register.html', token=full_token_str, error="密码长度至少6位。")
-        
+            return render_template('register.html', token=full_token_str, error="密码长度至少6位。", moviepilot_enabled=moviepilot_enabled)
         if len(password) > 32:
-            db.close()
-            return render_template('register.html', token=full_token_str, error="密码长度不能超过32位。")
+            return render_template('register.html', token=full_token_str, error="密码长度不能超过32位。", moviepilot_enabled=moviepilot_enabled)
         
-        # Check for weak passwords
-        weak_passwords = ['123456', '123456789', '12345678', '1234567', '123123',
-                         'password', 'qwerty', 'abc123', '111111', '000000',
-                         '1qaz2wsx', 'admin', 'root', '888888', '666666']
+        weak_passwords = ['123456', '123456789', '12345678', '1234567', '123123', 'password', 'qwerty', 'abc123', '111111', '000000', '1qaz2wsx', 'admin', 'root', '888888', '666666']
         if password.lower() in weak_passwords:
-            db.close()
-            return render_template('register.html', token=full_token_str, error="密码过于简单，请使用更安全的密码。")
+            return render_template('register.html', token=full_token_str, error="密码过于简单，请使用更安全的密码。", moviepilot_enabled=moviepilot_enabled)
         
         user_id, error_msg = create_emby_user(username, password)
         if not user_id:
             db.close()
-            return render_template('register.html', token=full_token_str, error=error_msg)
+            return render_template('register.html', token=full_token_str, error=error_msg, moviepilot_enabled=moviepilot_enabled)
+
+        mp_success_msg = None
+        if moviepilot_enabled and create_moviepilot:
+            mp_success, mp_error_msg = create_moviepilot_user(username, password)
+            if mp_success:
+                mp_success_msg = "Moviepilot用户也已成功创建。"
+            else:
+                mp_success_msg = f"注意：Emby用户已创建，但Moviepilot用户创建失败：{mp_error_msg}"
         
-        db.execute(
-            'UPDATE tokens SET is_used = 1, registered_username = ? WHERE id = ?',
-            (username, token_data['id'])
-        )
+        db.execute('UPDATE tokens SET is_used = 1, registered_username = ? WHERE id = ?', (username, token_data['id']))
         db.commit()
         db.close()
         
-        return render_template('success.html', username=username, password=password, emby_url=EMBY_SERVER_URL)
+        return render_template('success.html', username=username, password=password, emby_url=EMBY_SERVER_URL, mp_message=mp_success_msg)
+    
     db.close()
-    return render_template('register.html', token=full_token_str)
+    return render_template('register.html', token=full_token_str, moviepilot_enabled=moviepilot_enabled)
 
 # --- Main Execution ---
 if __name__ == '__main__': 

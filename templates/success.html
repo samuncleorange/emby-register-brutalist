@@ -6,6 +6,12 @@
         <h3 class="card-title" style="color: #00FF00;">注册成功!</h3>
         <p style="font-size: 1.2rem; font-weight: 800;">您的Emby账号已创建。请妥善保管以下信息。</p>
 
+        {% if mp_message %}
+        <div class="alert alert-secondary">
+            {{ mp_message }}
+        </div>
+        {% endif %}
+
         <div class="alert alert-info text-start">
             <p class="mb-1"><strong>服务器地址:</strong></p>
             <code class="fs-6">{{ emby_url }}</code>

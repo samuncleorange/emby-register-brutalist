@@ -46,6 +46,11 @@
 - EMBY_SERVER_URL：EMBY服务器的地址，如果非标准端口，一起写上，例如 https://emby.your-domain.com:8920
 - EMBY_API_KEY：和EMBY服务器交互的时候需要用到的API，去emby服务器管理面板里面申请
 - COPY_FROM_USER_ID：从模板用户复制emby参数，这里填写他的ID，看如下说明
+- **(可选) Moviepilot 集成**:
+  - `MOVIEPILOT_URL`: 你的 Moviepilot 服务的URL, 例如 `https://moviepilot.your-domain.com`
+  - `MOVIEPILOT_USER`: 用于登录 Moviepilot 并获取管理员Token的用户名。
+  - `MOVIEPILOT_PASSWORD`: 上述用户的密码。
+  - **说明**: 当这三个环境变量被设置后，用户在注册页面会看到一个“同时创建Moviepilot用户”的复选框。如果勾选，系统将在创建Emby用户的同时，使用相同的用户名和密码在Moviepilot中创建用户。如果环境变量未设置，此选项不会显示。
 
 先去emby里面创建一个模板用户，注意不要给他管理权限!!!，把这个用户的各项参数配置好，例如他是否能看所有的库，是否能转码，是否能删除文件等；然后在控制台用户管理那里点这个用户，浏览器地址栏会显示这样的一串（举例）：https://emby.your-domain.com:8920/web/index.html#!/users/user?userId=a22935174ac24711aa54f84999999⁠ ，把userId= 这后面的这串代码a22935174ac24711aa54f84999999拷贝出来，写到 COPY_FROM_USR_ID 这个环境变量
 
