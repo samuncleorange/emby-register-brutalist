@@ -15,11 +15,11 @@ services:
       - COPY_FROM_USER_ID=${COPY_FROM_USER_ID}
       - PUBLIC_ACCESS_URL=${PUBLIC_ACCESS_URL}
       # --- Optional: Moviepilot Integration ---
-      # To enable, uncomment and set the following variables.
-      # The option to create a Moviepilot user will appear on the registration page.
-      - MOVIEPILOT_URL=
-      - MOVIEPILOT_USER=
-      - MOVIEPILOT_PASSWORD=
+      # When the following variables resolve to non-empty values,
+      # the registration form will provide "同时创建 Moviepilot 用户" option.
+      - MOVIEPILOT_URL=${MOVIEPILOT_URL:-}
+      - MOVIEPILOT_USER=${MOVIEPILOT_USER:-}
+      - MOVIEPILOT_PASSWORD=${MOVIEPILOT_PASSWORD:-}
     restart: unless-stopped
     networks:
       - emby-net

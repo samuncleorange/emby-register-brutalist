@@ -31,6 +31,10 @@
 - DockerHub: `unclesamo/emby-register-brutalist:latest`
 - 支持多架构：linux/amd64, linux/arm64
 
+✅ **可选的 Moviepilot 同步**
+- 通过配置 `MOVIEPILOT_URL`、`MOVIEPILOT_USER`、`MOVIEPILOT_PASSWORD` 三个环境变量，为注册页面增加“同时创建 Moviepilot 用户”的复选框。
+- 选中后将自动使用相同的用户名/密码调用 Moviepilot API 创建账号，方便一键开通多平台。
+
 ---
 
 ## 原作者说明
@@ -58,24 +62,33 @@
 
 ### docker-compose.yml 示例
 
-**本版本（粗野主义UI）**:
+**本版本（粗野主义UI）**（建议配合 `.env` 文件注入真实值）:
 ```yaml
 services:
     emby-register-service:
+        image: unclesamo/emby-register-brutalist:latest
         ports:
             - 18080:5000
         volumes:
             - ./data:/app/data
         container_name: my-emby-register-app
         environment:
-            - FLASK_SECRET_KEY=54a7a4e7d286d13dbf610f14677d11290dede4eb8f0f20f01f3b57b109530f8d
-            - PUBLIC_ACCESS_URL=https://your-reg-domain.com
-            - ADMIN_PASSWORD=your_admin_password
-            - EMBY_SERVER_URL=https://emby.your-domain.com:8920
-            - EMBY_API_KEY=your_api_key
-            - COPY_FROM_USER_ID=your_template_user_id
+            - FLASK_SECRET_KEY=${FLASK_SECRET_KEY}
+            - PUBLIC_ACCESS_URL=${PUBLIC_ACCESS_URL}
+            - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+            - EMBY_SERVER_URL=${EMBY_SERVER_URL}
+            - EMBY_API_KEY=${EMBY_API_KEY}
+            - COPY_FROM_USER_ID=${COPY_FROM_USER_ID}
+            # --- Optional: Moviepilot Integration ---
+            - MOVIEPILOT_URL=${MOVIEPILOT_URL:-}
+            - MOVIEPILOT_USER=${MOVIEPILOT_USER:-}
+            - MOVIEPILOT_PASSWORD=${MOVIEPILOT_PASSWORD:-}
         restart: unless-stopped
-        image: unclesamo/emby-register-brutalist:latest
+        networks:
+            - emby-net
+networks:
+    emby-net:
+        driver: bridge
 ```
 
 **原版**:
