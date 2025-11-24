@@ -274,12 +274,7 @@ def emby_register():
         password = request.form.get('password', '').strip()
         create_moviepilot = request.form.get('create_moviepilot') == 'on'
 
-        if not re.match(r'^[a-zA-Z0-9]{4,32}
-
-# --- Main Execution ---
-if __name__ == '__main__': 
-    init_db()
-    app.run(host='0.0.0.0', port=5000), username):
+        if not re.match(r'^[a-zA-Z0-9]{4,32}$', username):
             return render_template('register.html', token=full_token_str, error="用户名不合法：长度需为4-32位，且只能包含英文字母和数字。", moviepilot_enabled=moviepilot_enabled)
         if len(password) < 6:
             return render_template('register.html', token=full_token_str, error="密码长度至少6位。", moviepilot_enabled=moviepilot_enabled)
