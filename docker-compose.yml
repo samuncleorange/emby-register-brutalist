@@ -8,12 +8,12 @@ services:
     volumes:
       - ./data:/app/data
     environment:
-      - FLASK_SECRET_KEY=d8ea61b70a3257f7b334ef4c26b71de65a4459a3a6182a191debbbf09fb2f0dd
-      - ADMIN_PASSWORD=piggo.register
-      - EMBY_SERVER_URL=https://ee.vim.im
-      - EMBY_API_KEY=b73252c004134cd889031eb171505c3b
-      - COPY_FROM_USER_ID=c2ea1659c6eb4dc88a6e8a9757dcb618
-      - PUBLIC_ACCESS_URL=https://reg.vim.im
+      - FLASK_SECRET_KEY=${FLASK_SECRET_KEY}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - EMBY_SERVER_URL=${EMBY_SERVER_URL}
+      - EMBY_API_KEY=${EMBY_API_KEY}
+      - COPY_FROM_USER_ID=${COPY_FROM_USER_ID}
+      - PUBLIC_ACCESS_URL=${PUBLIC_ACCESS_URL}
       # --- Optional: Moviepilot Integration ---
       # To enable, uncomment and set the following variables.
       # The option to create a Moviepilot user will appear on the registration page.
