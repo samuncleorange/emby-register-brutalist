@@ -34,7 +34,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: unclesamo/emby-register-brutalist
+          images: haploid152/emby-register-brutalist
           tags: |
             type=ref,event=branch
             type=sha
