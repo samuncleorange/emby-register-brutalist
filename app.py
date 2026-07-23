@@ -147,8 +147,27 @@ def create_moviepilot_user(username, password):
         "email": f"{username}@moviepilot.org",
         "is_active": True,
         "is_superuser": False,
-        "permission": 1,
-        "plugins": ["sub_share", "emby", "slack", "push", "telegram", "wechat", "movie_robot"]
+        "permission": {
+                        "discovery": true,
+                        "search": true,
+                        "subscribe": true,
+                        "manage": false,
+                        "admin": false,
+                        "features": {
+                          "discovery.recommend": true,
+                          "discovery.explore": true,
+                          "search.resource": true,
+                          "subscribe.movie": true,
+                          "subscribe.tv": true,
+                          "subscribe.calendar": true,
+                          "subscribe.share": true,
+                          "manage.workflow": true,
+                          "manage.downloading": true,
+                          "manage.history": true,
+                          "manage.filemanager": true,
+                          "manage.site": true
+                        }
+                      }
     }
     try:
         response = requests.post(create_user_url, json=payload, headers=headers, timeout=20)
@@ -302,7 +321,7 @@ def emby_register():
         db.commit()
         db.close()
         
-        return render_template('success.html', username=username, password=password, emby_url=EMBY_SERVER_URL, mp_message=mp_success_msg)
+        return render_template('success.html', username=username, password=password, emby_url=EMBY_SERVER_URL, mp_message=mp_success_msg, moviepilot_url=MOVIEPILOT_URL)
     
     db.close()
     return render_template('register.html', token=full_token_str, moviepilot_enabled=moviepilot_enabled)
